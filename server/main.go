@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -78,20 +79,15 @@ func loadX509Certificate(filename string) (*x509.Certificate, error) {
 	return cert, nil
 }
 
-func VerifyConnection(cs tls.ConnectionState) error {
-	matchingCert, _ := loadX509Certificate("testdata/matching-cert.pem")
-	cs.PeerCertificates[0] = matchingCert
-	return nil
-}
-
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		io.WriteString(w, "Hello, TLS!\n")
-	})
+	ourCert := flag.String("our-cert", "../certs/our-cert.pem", "certificate to use for actual encryption")
+	ourKey := flag.String("our-key", "../certs/our-key.pem", "key to use for actual encryption")
+	theirCert := flag.String("their-cert", "../certs/their-cert.pem", "certificate we want to impersonate")
+	listenPort := flag.Int("listen-port", 8443, "port to listen on")
 
-	// mismatch, err := LoadX509KeyPair("testdata/gh-cert.pem", "testdata/key.pem")
+	flag.Parse()
 
-	matched, err := tls.LoadX509KeyPair("testdata/matching-cert.pem", "testdata/key.pem")
+	matched, err := tls.LoadX509KeyPair(*ourCert, *ourKey)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,39 +95,18 @@ func main() {
 		Certificates: []tls.Certificate{matched},
 	}
 
+	theirX509Cert, _ := loadX509Certificate(*theirCert)
+	cfg.Certificates[0].Certificate[0] = theirX509Cert.Raw
+	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		io.WriteString(w, fmt.Sprintf("Hello from %s!\n", *&theirX509Cert.Subject.CommonName))
+	})
 	srv := &http.Server{
-		Addr:         ":8443",
+		Addr:         fmt.Sprintf(":%d", *listenPort),
 		TLSConfig:    cfg,
 		ReadTimeout:  time.Minute,
 		WriteTimeout: time.Minute,
 	}
 
-	go func() {
-		log.Fatal(srv.ListenAndServeTLS("", ""))
+	log.Fatal(srv.ListenAndServeTLS("", ""))
 
-	}()
-
-	fakeCert, _ := loadX509Certificate("testdata/gh-cert.pem")
-	cfg.Certificates[0].Certificate[0] = fakeCert.Raw
-
-	time.Sleep(5 * time.Second)
-	good_cfg := &tls.Config{
-		VerifyConnection:   VerifyConnection,
-		InsecureSkipVerify: true,
-		MaxVersion:         tls.VersionTLS12,
-	}
-
-	tr := &http.Transport{}
-	tr.TLSClientConfig = good_cfg
-	client := &http.Client{Transport: tr}
-	resp, err := client.Get("https://127.0.0.1:8443")
-	if err != nil {
-		panic("failed to connect: " + err.Error())
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic("failed to read: " + err.Error())
-	}
-	fmt.Printf("%s", body)
 }

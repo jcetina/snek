@@ -1,2 +1,2 @@
 # snek
-SSL Network Evasion Kit
+SNI Network Evasion Kit
