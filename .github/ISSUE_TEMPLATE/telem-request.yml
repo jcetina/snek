@@ -1,5 +1,4 @@
 name: New telemetry request
-about: Tracking issue for telemetry requests.
 description: Request adding or modifying a security telemetry source
 title: "[Telemetry Request]: "
 labels: ["telemetry-request"]
