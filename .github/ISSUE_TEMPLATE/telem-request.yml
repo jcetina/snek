@@ -16,9 +16,11 @@ body:
       label: What are the top 3-5 questions this data should answer?
       description: Feel free to frame your question using a theoretical scenario. Understanding the overall goal helps us get the solution right in the long run.
       value: |
+        <!-- Example questions:
         What internal IP addressess called service Foo today?
         What processes spawned for PID 1234 on machine awesome-approle since last week?
         How many hosts have communicated with domain evil-dot-com in the last 24 hours?
+        -->
     validations:
       required: false
   - type: textarea
@@ -26,10 +28,13 @@ body:
     attributes:
       label: Do you have any proposed data sources in mind that would help answer these questions?.
       value: |
+        <!-- Example source:
         Debug logs from Foo service would help!
+        Service logs from Azure Web Apps have this data.
+        -->
     validations:
       required: false
-  - type: dropdown
+  - type: checkboxes
     id: purpose
     attributes:
       label: What security purposes does this data serve?
@@ -39,7 +44,6 @@ body:
         - Response
         - Vulnerability Management
         - General IT or Security posture
-      default: 0
     validations:
       required: true
   - type: dropdown
