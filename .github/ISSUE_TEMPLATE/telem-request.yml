@@ -38,7 +38,6 @@ body:
     id: purpose
     attributes:
       label: What security purposes does this data serve?
-      multiple: true
       options:
         - Detection
         - Response
