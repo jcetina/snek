@@ -38,11 +38,12 @@ body:
     id: purpose
     attributes:
       label: What security purposes does this data serve?
+      description: You may select more than one.
       options:
-        - Detection
-        - Response
-        - Vulnerability Management
-        - General IT or Security posture
+        - label: Detection
+        - label: Response
+        - label: Vulnerability Management
+        - label: General IT or Security posture
     validations:
       required: true
   - type: dropdown
