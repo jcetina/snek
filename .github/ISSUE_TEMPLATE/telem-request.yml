@@ -1,0 +1,55 @@
+name: New telemetry request
+about: Tracking issue for telemetry requests.
+description: Request adding or modifying a security telemetry source
+title: "[Telemetry Request]: "
+labels: ["telemetry-request"]
+projects: ["github/11254"]
+assignees:
+  - github/platform-fundamentals
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for requesting or modifying a security telemetry data source. Please answer the questions below as completely as possible. We use the answers to these questions to understand and prioritize telemetry requests.
+  - type: textarea
+    id: what-questions
+    attributes:
+      label: What are the top 3-5 questions this data should answer?
+      description: Feel free to frame your question using a theoretical scenario. Understanding the overall goal helps us get the solution right in the long run.
+      value: |
+        What internal IP addressess called service Foo today?
+        What processes spawned for PID 1234 on machine awesome-approle since last week?
+        How many hosts have communicated with domain evil-dot-com in the last 24 hours?
+    validations:
+      required: false
+  - type: textarea
+    id: what-sources
+    attributes:
+      label: Do you have any proposed data sources in mind that would help answer these questions?.
+      value: |
+        Debug logs from Foo service would help!
+    validations:
+      required: false
+  - type: dropdown
+    id: purpose
+    attributes:
+      label: What security purposes does this data serve?
+      multiple: true
+      options:
+        - Detection
+        - Response
+        - Vulnerability Management
+        - General IT or Security posture
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: How urgent is this request?
+      options:
+        - Needed ASAP
+        - Needed this quarter
+        - Needed this semester
+        - Needed this year
+        - More of a want than need
